@@ -3,10 +3,11 @@ let pieces = [];
 const canvas = document.getElementById("scene");
 const context = canvas.getContext("2d");
 let tileSize = 50;
+let pieceRadius = 15;
 
 class Mover {
   constructor() {
-    this.speed = 5;
+    this.speed = 1;
     this.radius = 20;
 
     this.x = 0;
@@ -51,17 +52,15 @@ class Mover {
 
 class ChessPiece {
   constructor(x, y, team, mover) {
-    this.radius = 15;
 
     this.x = x;
     this.y = y;
     this.mover = mover;
     this.team = team;
-    console.log(this.team);
   }
   render(context) {
     context.beginPath();
-    context.arc(this.x, this.y, this.radius, 0, 2*Math.PI);
+    context.arc(this.x, this.y, pieceRadius, 0, 2*Math.PI);
     if(this.team == 1) {
       context.fillStyle="green";
     } else if(this.team == 0){
@@ -77,6 +76,45 @@ class ChessPiece {
       this.x = this.mover.x;
       this.y = this.mover.y;
     }
+  }
+
+  routeTo(x, y) {
+    // positive x = left
+    // positive y = up
+    let distance = [x-this.x, y-this.y];
+    console.log(distance);
+    let prevX, prevY;
+    if(distance[0] != 0) {
+      while(!this.overlaps() && distance[0] != 0) {
+        prevX = this.x;
+        this.x += distance[0]/Math.abs(distance[0])*this.mover.speed;
+        distance[0] -= this.x-prevX;
+        console.log(distance)
+       // console.log(this.x);
+      }
+    }
+    this.x -= this.mover.speed;
+    if(distance[1] != 0) {
+      while(!this.overlaps() && distance[1] != 0) {
+        prevY = this.y;
+        this.y += distance[1]/Math.abs(distance[1])*this.mover.speed;
+        distance[1] -= this.y-prevY;
+        console.log(distance)
+       // console.log(this.x);
+      }
+      this.x -= this.mover.speed;
+    }
+  }
+
+  overlaps() {
+    // TODO: Do circle-circle intersection instead, will be much cooler
+    
+    for(let i = 0; i < pieces.length; i++) {
+      if(this != pieces[i] && equalsWithMargin(this.x, pieces[i].x, pieceRadius*2) && equalsWithMargin(this.y, pieces[i].y, pieceRadius*2)) {
+        return i;
+      }
+    }
+    return false;
   }
 }
 
