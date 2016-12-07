@@ -27,8 +27,14 @@ class Mover {
 
   update() {
     if(this.target != null) {
-      if(this.x != this.target.x) {
+      if(this.x != this.target.x && equalsWithMargin(this.x, this.target.x, this.speed)) {
+          this.x = this.target.x;
+      }
+      else if(this.x != this.target.x) {
         this.x += this.speed * ((this.target.x-this.x)/Math.abs(this.target.x-this.x));
+      }
+      else if(this.y != this.target.y &&equalsWithMargin(this.y, this.target.y, this.speed)) {
+          this.y = this.target.y;
       }
       else if(this.y != this.target.y) {
         this.y += this.speed * ((this.target.y-this.y)/Math.abs(this.target.y-this.y));
@@ -38,34 +44,33 @@ class Mover {
 }
 
 class ChessPiece {
-    constructor(x, y, mover) {
+    constructor(x, y, team, mover) {
       this.radius = 10;
 
       this.x = x;
       this.y = y;
       this.mover = mover;
+      this.team = team;
+      console.log(this.team);
   }
-
-  moveTo(x, y) {
-    mover.moveTo(this.x, this.y);
-    moveTo.toggleMagnet(true);
-    mover.moveTo(x, y);
-    moveTo.toggleMagnet(false);
-  }
-
   render(context) {
     context.beginPath();
     context.arc(this.x, this.y, this.radius, 0, 2*Math.PI);
-    context.fillStyle="green";
+    console.log(this.team);
+    if(this.team == 1) {
+      context.fillStyle="green";
+    } else if(this.team == 0){
+      context.fillStyle="blue";
+    }
     context.fill();
-    console.log("idonedidit");
   }
 
   update() {
-    if(mover.magnetEnabled && equalsWithMargin(this.x, mover.x, mover.radius) && equalsWithMargin(this.y, mover.y, mover.radius)) {
-      // We're hanging onto the magnet!
-      this.x = mover.x;
-      this.y = mover.y;
+    //if(mover.magnetEnabled && equalsWithMargin(this.x, mover.x, mover.radius) && equalsWithMargin(this.y, mover.y, mover.radius)) {
+      if(this.mover.magnetEnabled && equalsWithMargin(this.mover.x, this.x, this.mover.speed) && equalsWithMargin(this.mover.y, this.y, this.mover.speed)) {
+        // We're hanging onto the magnet!
+        this.x = this.mover.x;
+        this.y = this.mover.y;
     }
   }
 }
@@ -77,24 +82,39 @@ function equalsWithMargin(arg1, arg2, margin) {
   return false;
 }
 
-let pieces = [];
+function init() {
+  let pieces = [];
 
-let canvas = document.getElementById("scene");
-let c = canvas.getContext("2d");
+  const canvas = document.getElementById("scene");
+  const c = canvas.getContext("2d");
+  let tileSize = 50;
 
-let mover = new Mover();
 
-setInterval(function(){
-  c.clearRect(0, 0, 800, 800);
-
-  // Update and draw mover (this simulates our magnet)
-  mover.update();
-  mover.render(c);
-
-  // Update and render pieces
-  for(let i = 0; i < pieces.length; i++) {
-    pieces[i].update();
-    pieces[i].render(c);
+  for(let team = 0; team <= 1; team++) {
+    for(let row = 1; row <= 2; row++) {
+      for(let column = 0; column < 7; column++) {
+        pieces.push(new ChessPiece(row*tileSize-tileSize/2, column*tileSize-tileSize/2, team, mover))
+      }
+    }
   }
 
-}, 1000/60);
+  // Main loop
+  setInterval(function(){
+    c.clearRect(0, 0, 800, 800);
+
+    // Update and draw mover (this simulates our magnet)
+    mover.update();
+    mover.render(c);
+
+    // Update and render pieces
+    for(let i = 0; i < pieces.length; i++) {
+      pieces[i].update();
+      pieces[i].render(c);
+    }
+
+  }, 1000/60);
+}
+
+
+  const mover = new Mover();  
+init();
