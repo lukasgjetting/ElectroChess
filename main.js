@@ -1,9 +1,18 @@
 let pieces = [];
-
+let board = [
+  [true, true, true, true, true, true, true, true],
+  [true, true, true, true, true, true, true, true],
+  [false, false, false, false, false, false, false, false],
+  [false, false, false, false, false, false, false, false],
+  [false, false, false, false, false, false, false, false],
+  [false, false, false, false, false, false, false, false],
+  [true, true, true, true, true, true, true, true],
+  [true, true, true, true, true, true, true, true]
+];
 const canvas = document.getElementById("scene");
 const context = canvas.getContext("2d");
-let tileSize = 50;
-let pieceRadius = 15;
+let tileSize = canvas.width/8;
+let pieceRadius = tileSize*0.60/2;
 
 class Mover {
   constructor() {
@@ -21,7 +30,6 @@ class Mover {
   }
 
   toggleMagnet(enable) {
-
     this.magnetEnabled = enable;
   }
 
@@ -51,10 +59,13 @@ class Mover {
 }
 
 class ChessPiece {
-  constructor(x, y, team, mover) {
+  constructor(boardColumn, boardRow, team, mover) {
+    this.boardColumn = boardColumn;
+    this.boardRow = boardRow;
 
-    this.x = x;
-    this.y = y;
+    this.x = boardColumn*tileSize-tileSize/2;
+    this.y = 6*tileSize*team+boardRow*tileSize-tileSize/2;
+
     this.mover = mover;
     this.team = team;
   }
@@ -78,37 +89,18 @@ class ChessPiece {
     }
   }
 
-  routeTo(x, y) {
-    // positive x = left
-    // positive y = up
-    let distance = [x-this.x, y-this.y];
-    console.log(distance);
-    let prevX, prevY;
-    if(distance[0] != 0) {
-      while(!this.overlaps() && distance[0] != 0) {
-        prevX = this.x;
-        this.x += distance[0]/Math.abs(distance[0])*this.mover.speed;
-        distance[0] -= this.x-prevX;
-        console.log(distance)
-       // console.log(this.x);
-      }
-    }
-    this.x -= this.mover.speed;
-    if(distance[1] != 0) {
-      while(!this.overlaps() && distance[1] != 0) {
-        prevY = this.y;
-        this.y += distance[1]/Math.abs(distance[1])*this.mover.speed;
-        distance[1] -= this.y-prevY;
-        console.log(distance)
-       // console.log(this.x);
-      }
-      this.x -= this.mover.speed;
+  routeTo(boardColumn, boardRow) {
+    let route;
+    let tempBoard = board;
+    for(let pushes = 0; pushes < 10; pushes++) {
+      let pushesUsed = 0;
+      // Let's see if we can find a path with the least amount of pushes
     }
   }
 
   overlaps() {
     // TODO: Do circle-circle intersection instead, will be much cooler
-    
+
     for(let i = 0; i < pieces.length; i++) {
       if(this != pieces[i] && equalsWithMargin(this.x, pieces[i].x, pieceRadius*2) && equalsWithMargin(this.y, pieces[i].y, pieceRadius*2)) {
         return i;
@@ -158,9 +150,9 @@ function render() {
 
 function init() {
   for(let team = 0; team <= 1; team++) {
-    for(let row = 1; row <= 8; row++) {
-      for(let column = 1; column <= 2; column++) {
-        pieces.push(new ChessPiece(row*tileSize-tileSize/2, 6*tileSize*team+column*tileSize-tileSize/2, team, mover));
+    for(let column = 1; column <= 8; column++) {
+      for(let row = 1; row <= 2; row++) {
+        pieces.push(new ChessPiece(column, row, team, mover));
       }
     }
   }
@@ -173,5 +165,5 @@ function init() {
 }
 
 
-const mover = new Mover();  
+const mover = new Mover();
 init();
