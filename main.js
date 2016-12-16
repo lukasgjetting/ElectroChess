@@ -92,21 +92,31 @@ class ChessPiece {
   routeTo(boardColumn, boardRow) {
     let route;
     let tempBoard = board;
-    for(let pushes = 0; pushes < 10; pushes++) {
-      let pushesUsed = 0;
+    for(let pushes = 0; pushes < pieces.length; pushes++) {
+      let pushesUsed = 0; 
       // Let's see if we can find a path with the least amount of pushes
-    }
-  }
 
-  overlaps() {
-    // TODO: Do circle-circle intersection instead, will be much cooler
-
-    for(let i = 0; i < pieces.length; i++) {
-      if(this != pieces[i] && equalsWithMargin(this.x, pieces[i].x, pieceRadius*2) && equalsWithMargin(this.y, pieces[i].y, pieceRadius*2)) {
-        return i;
+      let availableTiles = [];
+      let position = [this.x, this.y];
+      availableTiles.push([position[0], position[1], 0]);
+      while(availableTiles.length < 20) {
+        let tempAvailable = [];
+        for (var i = 0; i < availableTiles.length; i++) {
+          tempAvailable.concat([
+            [availableTiles[i][0]+1, availableTiles[i][1], availableTiles[i][2]+1], 
+            [availableTiles[i][0]-1, availableTiles[i][1], availableTiles[i][2]+1],
+            [availableTiles[i][0], availableTiles[i][1]+1, availableTiles[i][2]+1],
+            [availableTiles[i][0], availableTiles[i][1]-1, availableTiles[i][2]+1]
+          ]);
+          console.log(tempAvailable); 
+          console.log(availableTiles.length);
+          availableTiles.concat(tempAvailable);
+        }
+        
       }
+      console.log(availableTiles);
+
     }
-    return false;
   }
 }
 
